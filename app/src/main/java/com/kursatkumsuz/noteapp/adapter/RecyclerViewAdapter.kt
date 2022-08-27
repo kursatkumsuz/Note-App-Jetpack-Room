@@ -3,13 +3,32 @@ package com.kursatkumsuz.noteapp.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.view.animation.AnimationUtils
+import androidx.recyclerview.widget.AsyncListDiffer
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.kursatkumsuz.noteapp.databinding.TaskRowBinding
 import com.kursatkumsuz.noteapp.model.TaskModel
 
-class RecyclerViewAdapter(val taskList: List<TaskModel>) :
+class RecyclerViewAdapter() :
     RecyclerView.Adapter<RecyclerViewAdapter.TaskHolder>() {
     class TaskHolder(val binding: TaskRowBinding) : RecyclerView.ViewHolder(binding.root)
+
+    private val diffUtil = object : DiffUtil.ItemCallback<TaskModel>() {
+        override fun areItemsTheSame(oldItem: TaskModel, newItem: TaskModel): Boolean {
+            return oldItem == newItem
+        }
+
+        override fun areContentsTheSame(oldItem: TaskModel, newItem: TaskModel): Boolean {
+            return oldItem == newItem
+        }
+    }
+
+
+    private val recyclerListDiff = AsyncListDiffer(this, diffUtil)
+
+    var taskList : List<TaskModel>
+    get() = recyclerListDiff.currentList
+    set(value) = recyclerListDiff.submitList(value)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TaskHolder {
         val binding = TaskRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
