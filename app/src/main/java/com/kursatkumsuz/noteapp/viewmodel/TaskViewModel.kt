@@ -26,9 +26,9 @@ class TaskViewModel(application: Application) : AndroidViewModel(application) {
             repository.addTask(task)
         }
     }
-    fun deleteTask() {
+    fun deleteTask(task: TaskModel) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deleteTask()
+            repository.deleteTask(task)
         }
         Toast.makeText(getApplication() , "Deleted Tasks" , Toast.LENGTH_SHORT).show()
     }
