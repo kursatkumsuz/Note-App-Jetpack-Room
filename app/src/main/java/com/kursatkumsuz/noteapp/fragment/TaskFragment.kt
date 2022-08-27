@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.kursatkumsuz.noteapp.adapter.RecyclerViewAdapter
 import com.kursatkumsuz.noteapp.databinding.FragmentTaskBinding
@@ -20,8 +22,26 @@ class TaskFragment : Fragment() {
     private var _binding: FragmentTaskBinding? = null
     private val binding get() = _binding!!
     private lateinit var viewModel: TaskViewModel
-    private lateinit var adapter: RecyclerViewAdapter
-    private lateinit var list: List<TaskModel>
+    private var adapter = RecyclerViewAdapter()
+
+
+    private val itemCallBack = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+        override fun onMove(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            target: RecyclerView.ViewHolder
+        ): Boolean {
+            return true
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            val layoutPosition = viewHolder.layoutPosition
+            val selectedTask = adapter.taskList[layoutPosition]
+            viewModel.deleteTask(selectedTask)
+        }
+
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -35,33 +55,33 @@ class TaskFragment : Fragment() {
 
         viewModel = ViewModelProvider(this)[TaskViewModel::class.java]
 
+        //Functions
+        observeLiveData()
+        navigateToAddFragment()
+        // RecyclerView
         StaggeredGridLayoutManager(
-            2,
+            3,
             StaggeredGridLayoutManager.VERTICAL
         ).apply {
             binding.recyclerView.layoutManager = this
         }
+        binding.recyclerView.adapter = adapter
 
-        binding.createButton.setOnClickListener {
-            val action = TaskFragmentDirections.actionTaskFragmentToAddTaskFragment()
-            Navigation.findNavController(it).navigate(action)
-        }
-        binding.deleteButton.setOnClickListener {
-            viewModel.deleteTask()
-        }
-
-        observeLiveData()
+        ItemTouchHelper(itemCallBack).attachToRecyclerView(binding.recyclerView)
     }
 
     private fun observeLiveData() {
         viewModel.taskList.observe(viewLifecycleOwner, Observer { task ->
             task?.let {
-                list = task
-                adapter = RecyclerViewAdapter(task)
-                binding.recyclerView.adapter = adapter
+                adapter.taskList = task
             }
         })
     }
 
-
+    private fun navigateToAddFragment() {
+        binding.createButton.setOnClickListener {
+            val action = TaskFragmentDirections.actionTaskFragmentToAddTaskFragment()
+            Navigation.findNavController(it).navigate(action)
+        }
+    }
 }
