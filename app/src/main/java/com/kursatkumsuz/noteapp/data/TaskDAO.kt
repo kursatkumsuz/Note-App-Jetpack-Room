@@ -12,6 +12,6 @@ interface TaskDAO {
     @Query("SELECT * FROM TaskModel")
     fun getAllTask() : LiveData<List<TaskModel>>
 
-    @Query("DELETE FROM TaskModel")
-    suspend fun deleteAllTask()
+    @Delete
+    suspend fun deleteTask(task: TaskModel)
 }
