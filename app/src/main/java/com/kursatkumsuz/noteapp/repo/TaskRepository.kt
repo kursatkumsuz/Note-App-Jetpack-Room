@@ -10,7 +10,7 @@ class TaskRepository(private val taskDao: TaskDAO) {
     suspend fun addTask(task: TaskModel) {
         taskDao.insert(task)
     }
-    suspend fun deleteTask() {
-        taskDao.deleteAllTask()
+    suspend fun deleteTask(task: TaskModel) {
+        taskDao.deleteTask(task)
     }
 }
